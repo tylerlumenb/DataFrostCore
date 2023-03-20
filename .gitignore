@@ -1,0 +1,13 @@
+# Keep workspace clean
+*.log
+.DS_Store
+node_modules/
+.vscode/
+.env/
+.envrc
+# project guide
+AGENTS.md
+__pycache__/
+*.pyc
+build/
+dist/
