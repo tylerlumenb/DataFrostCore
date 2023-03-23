@@ -103,6 +103,7 @@ def _build_parser() -> ArgumentParser:
     list_parser.add_argument("--limit", type=int, default=10)
 
     sub.add_parser("remind", help="Show outstanding reminders.")
+    sub.add_parser("prompt", help="Guided interactive entry.")
     return parser
 
 
@@ -110,21 +111,58 @@ def _normalize_tags(raw: str) -> List[str]:
     return [part.strip() for part in raw.split(",") if part.strip()]
 
 
+def _build_entry_payload(
+    title: str,
+    body: str,
+    mood: str,
+    tags: str,
+    remind: Optional[str],
+    timestamp: Optional[str] = None,
+) -> dict:
+    return {
+        "title": title,
+        "body": body,
+        "mood": mood,
+        "timestamp": timestamp or datetime.utcnow().isoformat(),
+        "tags": _normalize_tags(tags),
+        "reminder": remind,
+    }
+
+
+def _prompt_for_entry() -> dict:
+    print("starting a guided entry (leave blank to skip)")
+    title = input("title: ").strip()
+    body = input("body: ").strip()
+    mood = input("mood (default neutral): ").strip() or "neutral"
+    tags = input("tags (comma list): ").strip()
+    remind = input("reminder date YYYY-MM-DD: ").strip() or None
+    return _build_entry_payload(
+        title=title or "untitled",
+        body=body or "no body yet",
+        mood=mood,
+        tags=tags,
+        remind=remind,
+    )
+
+
 def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
     if args.command == "add":
-        timestamp = datetime.utcnow().isoformat()
-        entry = {
-            "title": args.title,
-            "body": args.body,
-            "mood": args.mood,
-            "timestamp": timestamp,
-            "tags": _normalize_tags(args.tags),
-            "reminder": args.remind,
-        }
+        entry = _build_entry_payload(
+            title=args.title,
+            body=args.body,
+            mood=args.mood,
+            tags=args.tags,
+            remind=args.remind,
+        )
         append_entry(entry)
         print("entry recorded")
+        return
+    if args.command == "prompt":
+        entry = _prompt_for_entry()
+        append_entry(entry)
+        print("guided entry logged")
         return
     entries = load_entries()
     if args.command == "list":

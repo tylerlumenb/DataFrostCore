@@ -21,6 +21,10 @@ python -m swan_song list --mood curious --tag api
 python -m swan_song remind
 ```
 
+## Guided entry prompt
+- `python -m swan_song prompt` asks for a title, body, mood, tags, and optional reminder  
+- blank inputs fall back to placeholders so the session can keep moving even if distracted
+
 ## Getting started
 1. Install dependencies (if any) via `pip install -r requirements.txt` (none for now).
 2. Run `python -m swan_song --help` to explore commands.
