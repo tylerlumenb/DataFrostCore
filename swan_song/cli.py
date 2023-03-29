@@ -63,22 +63,57 @@ def _print_entries(entries: List[dict]) -> None:
         print()
 
 
-def _plan_reminders(entries: List[dict]) -> None:
+def _summarize_moods(entries: List[dict]) -> dict:
+    summary = {}
+    for entry in entries:
+        mood = entry.get("mood", "neutral")
+        summary[mood] = summary.get(mood, 0) + 1
+    return summary
+
+
+def _plan_reminders(entries: List[dict], days: Optional[int] = 30) -> None:
     today = date.today()
-    pending = [
-        e
-        for e in entries
-        if e.get("reminder")
-        and date.fromisoformat(e["reminder"]) >= today
-    ]
-    if not pending:
+    due_window = today + timedelta(days=days) if days is not None else None
+    upcoming: List[dict] = []
+    overdue: List[dict] = []
+    for entry in entries:
+        remind = entry.get("reminder")
+        if not remind:
+            continue
+        reminder_date = date.fromisoformat(remind)
+        if reminder_date < today:
+            overdue.append(entry)
+            continue
+        if due_window is None or reminder_date <= due_window:
+            upcoming.append(entry)
+    if not upcoming and not overdue:
         print("no reminders waiting")
         return
-    print("reminders to follow up on:")
-    for entry in pending:
-        print(
-            f"- {entry['title']} due {entry['reminder']} (mood {entry['mood']})"
-        )
+    if overdue:
+        print("overdue reminders:")
+        for entry in overdue:
+            print(
+                f"- {entry['title']} overdue {entry['reminder']} (mood {entry['mood']})"
+            )
+    if upcoming:
+        print("upcoming reminders:")
+        for entry in upcoming:
+            print(
+                f"- {entry['title']} due {entry['reminder']} (mood {entry['mood']})"
+            )
+
+
+def _print_review(entries: List[dict], remind_days: int) -> None:
+    summary = _summarize_moods(entries)
+    if summary:
+        print("mood snapshot:")
+        for mood, count in sorted(summary.items(), key=lambda pair: -pair[1]):
+            print(f"- {mood}: {count} entries")
+        print()
+    else:
+        print("no entries recorded yet")
+        print()
+    _plan_reminders(entries, days=remind_days)
 
 
 def _build_parser() -> ArgumentParser:
@@ -102,8 +137,18 @@ def _build_parser() -> ArgumentParser:
     list_parser.add_argument("--until", help="Inclusive end date.")
     list_parser.add_argument("--limit", type=int, default=10)
 
-    sub.add_parser("remind", help="Show outstanding reminders.")
+    remind_parser = sub.add_parser("remind", help="Show outstanding reminders.")
+    remind_parser.add_argument(
+        "--days", type=int, default=30, help="Look ahead this many days."
+    )
     sub.add_parser("prompt", help="Guided interactive entry.")
+    review_parser = sub.add_parser("review", help="Summarize recent moods.")
+    review_parser.add_argument(
+        "--remind-days",
+        type=int,
+        default=14,
+        help="How far ahead to surface reminders.",
+    )
     return parser
 
 
@@ -169,6 +214,9 @@ def main() -> None:
         _print_entries(_filter_entries(entries, args))
         return
     if args.command == "remind":
-        _plan_reminders(entries)
+        _plan_reminders(entries, days=args.days)
+        return
+    if args.command == "review":
+        _print_review(entries, remind_days=args.remind_days)
         return
     parser.print_help()

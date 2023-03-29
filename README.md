@@ -25,6 +25,10 @@ python -m swan_song remind
 - `python -m swan_song prompt` asks for a title, body, mood, tags, and optional reminder  
 - blank inputs fall back to placeholders so the session can keep moving even if distracted
 
+## Mood review
+- `python -m swan_song review` prints a quick mood snapshot followed by reminders within the next two weeks.
+- Extend or shrink that window with `--remind-days` to match the sprint/mood cycle you are currently in.
+
 ## Getting started
 1. Install dependencies (if any) via `pip install -r requirements.txt` (none for now).
 2. Run `python -m swan_song --help` to explore commands.
