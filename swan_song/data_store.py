@@ -3,7 +3,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 LOGBOOK_FILE = DATA_DIR / "logbook.json"
@@ -38,3 +38,14 @@ def append_entry(entry: Entry) -> Entry:
     entries.insert(0, entry)
     save_entries(entries)
     return entry
+
+
+def set_entry_status(timestamp: str, status: str) -> Optional[Entry]:
+    """Set a custom status value on an entry identified by timestamp."""
+    entries = load_entries()
+    for entry in entries:
+        if entry.get("timestamp") == timestamp:
+            entry["status"] = status
+            save_entries(entries)
+            return entry
+    return None

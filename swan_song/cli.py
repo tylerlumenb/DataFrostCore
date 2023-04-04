@@ -4,7 +4,7 @@ from argparse import ArgumentParser, Namespace
 from datetime import date, datetime
 from typing import List, Optional
 
-from .data_store import append_entry, load_entries
+from .data_store import append_entry, load_entries, set_entry_status
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -21,8 +21,9 @@ def _parse_date(value: Optional[str]) -> Optional[date]:
 def _format_entry(entry: dict) -> str:
     tags = ", ".join(entry.get("tags", []))
     reminder = entry.get("reminder") or "no reminder"
+    status = entry.get("status", "open")
     return (
-        f"- {entry['title']} ({entry['mood']} @ {entry['timestamp']})\n"
+        f"- {entry['title']} [{status}] ({entry['mood']} @ {entry['timestamp']})\n"
         f"  tags: {tags}\n"
         f"  reminder: {reminder}\n"
         f"  {entry['body']}"
@@ -149,6 +150,12 @@ def _build_parser() -> ArgumentParser:
         default=14,
         help="How far ahead to surface reminders.",
     )
+    complete_parser = sub.add_parser("complete", help="Mark an entry as done.")
+    complete_parser.add_argument(
+        "--timestamp",
+        required=True,
+        help="Timestamp identifier of the entry to mark as done.",
+    )
     return parser
 
 
@@ -218,5 +225,12 @@ def main() -> None:
         return
     if args.command == "review":
         _print_review(entries, remind_days=args.remind_days)
+        return
+    if args.command == "complete":
+        updated = set_entry_status(args.timestamp, "done")
+        if updated:
+            print("entry marked as done")
+        else:
+            print("could not find an entry with that timestamp")
         return
     parser.print_help()

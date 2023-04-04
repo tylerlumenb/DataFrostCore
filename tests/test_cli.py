@@ -1,4 +1,4 @@
-from swan_song.cli import _build_entry_payload, _normalize_tags, _summarize_moods
+from swan_song.cli import _build_entry_payload, _format_entry, _normalize_tags, _summarize_moods
 
 
 def test_normalize_tags_strips_whitespace():
@@ -25,3 +25,17 @@ def test_summarize_moods_counts_entries():
     assert summary["curious"] == 2
     assert summary["tired"] == 1
     assert summary["neutral"] == 1
+
+
+def test_format_entry_shows_status():
+    entry = {
+        "title": "Checkpoint",
+        "body": "Need to rewire the cache",
+        "mood": "thrilled",
+        "timestamp": "2023-03-23T05:00:00",
+        "tags": ["cache"],
+        "reminder": "2023-04-01",
+        "status": "done",
+    }
+    formatted = _format_entry(entry)
+    assert "[done]" in formatted

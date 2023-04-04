@@ -28,6 +28,7 @@ python -m swan_song remind
 ## Mood review
 - `python -m swan_song review` prints a quick mood snapshot followed by reminders within the next two weeks.
 - Extend or shrink that window with `--remind-days` to match the sprint/mood cycle you are currently in.
+- `python -m swan_song complete --timestamp "2023-03-21T20:15:01"` retires a reminder once the experiment is logged.
 
 ## Getting started
 1. Install dependencies (if any) via `pip install -r requirements.txt` (none for now).
