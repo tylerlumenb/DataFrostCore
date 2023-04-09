@@ -117,6 +117,27 @@ def _print_review(entries: List[dict], remind_days: int) -> None:
     _plan_reminders(entries, days=remind_days)
 
 
+def _gather_tag_usage(entries: List[dict]) -> dict:
+    usage = {}
+    for entry in entries:
+        for tag in entry.get("tags", []):
+            usage[tag] = usage.get(tag, 0) + 1
+    return usage
+
+
+def _print_tag_usage(entries: List[dict], top: int = 0) -> None:
+    usage = _gather_tag_usage(entries)
+    if not usage:
+        print("no tags have been tracked yet")
+        return
+    print("tag usage:")
+    sorted_tags = sorted(usage.items(), key=lambda pair: (-pair[1], pair[0]))
+    for index, (tag, count) in enumerate(sorted_tags):
+        if top and index >= top:
+            break
+        print(f"- {tag}: {count}")
+
+
 def _build_parser() -> ArgumentParser:
     parser = ArgumentParser("swan_song", description="Personal logbook CLI.")
     sub = parser.add_subparsers(dest="command")
@@ -143,6 +164,13 @@ def _build_parser() -> ArgumentParser:
         "--days", type=int, default=30, help="Look ahead this many days."
     )
     sub.add_parser("prompt", help="Guided interactive entry.")
+    tags_parser = sub.add_parser("tags", help="Summarize logged tags.")
+    tags_parser.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Limit the output to the most used tags.",
+    )
     review_parser = sub.add_parser("review", help="Summarize recent moods.")
     review_parser.add_argument(
         "--remind-days",
@@ -219,6 +247,9 @@ def main() -> None:
     entries = load_entries()
     if args.command == "list":
         _print_entries(_filter_entries(entries, args))
+        return
+    if args.command == "tags":
+        _print_tag_usage(entries, top=args.top)
         return
     if args.command == "remind":
         _plan_reminders(entries, days=args.days)

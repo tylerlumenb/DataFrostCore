@@ -25,6 +25,10 @@ python -m swan_song remind
 - `python -m swan_song prompt` asks for a title, body, mood, tags, and optional reminder  
 - blank inputs fall back to placeholders so the session can keep moving even if distracted
 
+## Tag counts
+- `python -m swan_song tags` shows which tags get reused most and how often they appear.
+- Trim the output with `--top 3` if you only care about the three busiest threads.
+
 ## Mood review
 - `python -m swan_song review` prints a quick mood snapshot followed by reminders within the next two weeks.
 - Extend or shrink that window with `--remind-days` to match the sprint/mood cycle you are currently in.
