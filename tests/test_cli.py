@@ -1,4 +1,10 @@
-from swan_song.cli import _build_entry_payload, _format_entry, _normalize_tags, _summarize_moods
+from swan_song.cli import (
+    _build_entry_payload,
+    _format_entry,
+    _gather_tag_usage,
+    _normalize_tags,
+    _summarize_moods,
+)
 
 
 def test_normalize_tags_strips_whitespace():
@@ -39,3 +45,15 @@ def test_format_entry_shows_status():
     }
     formatted = _format_entry(entry)
     assert "[done]" in formatted
+
+
+def test_gather_tag_usage_counts_frequencies():
+    entries = [
+        {"tags": ["api", "cache"]},
+        {"tags": ["api"]},
+        {"tags": ["thread", "cache"]},
+    ]
+    usage = _gather_tag_usage(entries)
+    assert usage["api"] == 2
+    assert usage["cache"] == 2
+    assert usage["thread"] == 1
