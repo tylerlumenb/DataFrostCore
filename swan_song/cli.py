@@ -1,10 +1,12 @@
 """Small CLI layer for the SwanSong Logbook utility."""
 
 from argparse import ArgumentParser, Namespace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import List, Optional
 
-from .data_store import append_entry, load_entries, set_entry_status
+from .data_store import append_entry, DATA_DIR, load_entries, set_entry_status
+from .exporter import export_entries
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -184,6 +186,13 @@ def _build_parser() -> ArgumentParser:
         required=True,
         help="Timestamp identifier of the entry to mark as done.",
     )
+    export_parser = sub.add_parser("export", help="Write all entries to JSON.")
+    export_parser.add_argument(
+        "--output",
+        type=Path,
+        default=DATA_DIR / "logbook_export.json",
+        help="File path for the exported snapshot.",
+    )
     return parser
 
 
@@ -263,5 +272,9 @@ def main() -> None:
             print("entry marked as done")
         else:
             print("could not find an entry with that timestamp")
+        return
+    if args.command == "export":
+        exported = export_entries(entries, args.output)
+        print(f"exported {len(entries)} entries to {exported}")
         return
     parser.print_help()

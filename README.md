@@ -29,6 +29,10 @@ python -m swan_song remind
 - `python -m swan_song tags` shows which tags get reused most and how often they appear.
 - Trim the output with `--top 3` if you only care about the three busiest threads.
 
+## Export sweep
+- `python -m swan_song export` writes a fingerprint of the logbook to `data/logbook_export.json` for safe review.
+- Change the target with `--output my/logbook/backup.json` if you are building an appendix for the project.
+
 ## Mood review
 - `python -m swan_song review` prints a quick mood snapshot followed by reminders within the next two weeks.
 - Extend or shrink that window with `--remind-days` to match the sprint/mood cycle you are currently in.
