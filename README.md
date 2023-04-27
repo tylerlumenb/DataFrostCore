@@ -33,6 +33,9 @@ python -m swan_song remind
 - `python -m swan_song export` writes a fingerprint of the logbook to `data/logbook_export.json` for safe review.
 - Change the target with `--output my/logbook/backup.json` if you are building an appendix for the project.
 
+## Developer helpers
+- `python scripts/seed_entries.py` drops a few fresh entries so you can demo the CLI without losing momentum.
+
 ## Mood review
 - `python -m swan_song review` prints a quick mood snapshot followed by reminders within the next two weeks.
 - Extend or shrink that window with `--remind-days` to match the sprint/mood cycle you are currently in.
